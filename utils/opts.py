@@ -22,16 +22,16 @@ class Opts(object):
                  use_cuda=True,
                  use_fp16=True,
                  classes_path='model_data/ssdd_classes.txt',
-                 pretrained_model_path='logs/exp1/last_epoch_weights.pth',
+                 pretrained_model_path='model_data/centernet_resnet50_voc.pth',
                  input_shape=None,
 
                  backbone="resnet50",
                  use_pretrained_backbone=False,
 
-                 init_epoch=26,
-                 freeze_epoch=50,
+                 init_epoch=0,
+                 freeze_epoch=100,
                  freeze_batch_size=16,
-                 epoch=150,
+                 epoch=520,
                  batch_size=32,
                  freeze_backbone=True,
 
@@ -42,8 +42,9 @@ class Opts(object):
                  optimizer_type="adam",
                  momentum=0.9,
                  weight_decay=0,
-                 save_period=10,
-                 save_dir='logs/exp1',
+                 save_period=50,
+                 eval_period=20,
+                 save_dir='logs/exp',
                  use_eval=True,
                  num_workers=8,
                  train_annotation_path='dataset/SSDD/ImageSets/Exp1/train.txt',
@@ -72,6 +73,7 @@ class Opts(object):
         :param weight_decay: 权值衰减，可防止过拟合
 
         :param save_period: 多少个epoch保存一次权值
+        :param eval_period: 多少个epoch评估一次
         :param save_dir: 权值与日志文件保存的文件夹
         :param use_eval: 训练时进行评估，评估对象为验证集
         :param num_workers: 用于设置是否使用多线程读取数据，1代表关闭多线程
@@ -98,6 +100,7 @@ class Opts(object):
         self.weight_decay = weight_decay
         self.lr_decay_type = lr_decay_type
         self.save_period = save_period
+        self.eval_period = eval_period
         self.save_dir = save_dir
         self.use_eval = use_eval
         self.num_workers = num_workers
