@@ -4,12 +4,11 @@ import time
 
 import numpy as np
 import torch
-import torch.backends.cudnn as cudnn
 from PIL import ImageDraw, ImageFont
 
-from nets.centernet import CenterNet_HourglassNet, CenterNet_Resnet50
-from utils.utils import (cvtColor, get_classes, preprocess_input, resize_image,
-                         show_config)
+from nets.centernet_hourglassnet import CenterNetHourglassNet
+from nets.centernet_resnet50 import CenterNetResnet50
+from utils.utils import (cvtColor, get_classes, preprocess_input, resize_image, show_config)
 from utils.utils_bbox import decode_bbox, postprocess
 
 
@@ -30,7 +29,7 @@ class CenterNet(object):
         #   验证集损失较低不代表mAP较高，仅代表该权值在验证集上泛化性能较好。
         #   如果出现shape不匹配，同时要注意训练时的model_path和classes_path参数的修改
         # --------------------------------------------------------------------------#
-        "model_path": 'logs/exp/best_epoch_weights.pth',
+        "model_path": 'logs/exp1/best_epoch_weights.pth',
         "classes_path": 'model_data/ssdd_classes.txt',
         # --------------------------------------------------------------------------#
         #   用于选择所使用的模型的主干
@@ -105,9 +104,9 @@ class CenterNet(object):
         # -------------------------------#
         assert self.backbone in ['resnet50', 'hourglass']
         if self.backbone == "resnet50":
-            self.net = CenterNet_Resnet50(num_classes=self.num_classes, pretrained=False)
+            self.net = CenterNetResnet50(num_classes=self.num_classes, backbone_pretrained=False)
         else:
-            self.net = CenterNet_HourglassNet({'hm': self.num_classes, 'wh': 2, 'reg': 2})
+            self.net = CenterNetHourglassNet({'hm': self.num_classes, 'wh': 2, 'reg': 2})
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.net.load_state_dict(torch.load(self.model_path, map_location=device))

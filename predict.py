@@ -56,14 +56,14 @@ if __name__ == "__main__":
     #   
     #   dir_origin_path和dir_save_path仅在mode='dir_predict'时有效
     # -------------------------------------------------------------------------#
-    dir_origin_path = "detect/img/exp1"
-    dir_save_path = "detect/output/exp1"
+    dir_origin_path = "detect/img/exp1/000823.jpg"
+    dir_save_path = "detect/output/exp1/ddd.png"
     # -------------------------------------------------------------------------#
     #   heatmap_save_path   热力图的保存路径，默认保存在model_data下
     #   
     #   heatmap_save_path仅在mode='heatmap'有效
     # -------------------------------------------------------------------------#
-    heatmap_save_path = "detect/output/exp1/hm"
+    heatmap_save_path = "detect/output/exp1/hm2"
     # -------------------------------------------------------------------------#
     #   simplify            使用Simplify onnx
     #   onnx_save_path      指定了onnx的保存路径
