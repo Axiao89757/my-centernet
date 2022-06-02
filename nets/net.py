@@ -1,10 +1,11 @@
 import math
 from torch import nn
-from my_nets.resnet import ResNet
-from my_nets.resnet50_decoder import Resnet50Decoder
-from my_nets.resnet50_head import Resnet50Head
-from sub_nets.bottleneck import Bottleneck
+from nets.my_sub_nets.resnet import ResNet
+from nets.my_sub_nets.resnet50_decoder import Resnet50Decoder
+from nets.my_sub_nets.resnet50_head import Resnet50Head
+from nets.my_sub_nets.bottleneck import Bottleneck
 from torch.hub import load_state_dict_from_url
+from nets.sub_nets.resnet import resnet50
 
 model_urls = {
     'resnet18': 'https://s3.amazonaws.com/pytorch/models/resnet18-5c106cde.pth',
@@ -27,10 +28,10 @@ class CenterNetDenseConnection(nn.Module):
         super(CenterNetDenseConnection, self).__init__()
         self.backbone_pretrained = backbone_pretrained
         self.plan = plan
+        self.backbone = None
 
         # <editor-folder desc="backbone: 512,512,3 -> 16,16,2048">
-        # self.backbone = create_resnet50(pretrained=backbone_pretrained, plan=self.plan)
-        self.backbone = ResNet(Bottleneck, [3, 4, 6, 3], plan=self.plan)
+        self.make_backbone()
         if self.backbone_pretrained:
             state_dict = load_state_dict_from_url(model_urls['resnet50'], model_dir='model_data/')
             self.backbone.load_state_dict(state_dict)
@@ -45,6 +46,12 @@ class CenterNetDenseConnection(nn.Module):
         # </editor-fold>
 
         self._init_weights()
+
+    def make_backbone(self):
+        if self.plan == 0:
+            self.backbone = resnet50(pretrained=self.backbone_pretrained)
+        elif self.plan == 1:
+            self.backbone = ResNet(Bottleneck, [3, 4, 6, 3], plan=self.plan)
 
     def freeze_backbone(self):
         for param in self.backbone.parameters():

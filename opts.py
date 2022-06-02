@@ -10,7 +10,10 @@ d. 如果想要让模型从0开始训练，则设置pretrained_model_path = ''�
 如果一定要从0开始，可以了解imagenet数据集，首先训练分类模型，获得网络的主干部分权值，分类模型的 主干部分 和该模型通用，基于此进行训练。
 
 # 2. 中断续练
-将pretrained_model_path设置成logs文件夹下的权值文件，设置freeze_epoch，来保证模型epoch的连续性。
+1. 将pretrained_model_path设置成logs文件夹下指定epoch的pth文件
+2. 设置init_epoch=指定epoch-1，设置epoch=你想要的总epoch
+3. 设置log的保存路径，应该与之前的pth文件处于同一个文件夹
+4. ！！！！设置train.py的模型创建，将模型改为你想要的模型！！！
 
 # 3. 冻结
 
@@ -22,15 +25,15 @@ class Opts(object):
                  use_cuda=True,
                  use_fp16=True,
                  classes_path='model_data/ssdd_classes.txt',
-                 pretrained_model_path='logs/dense_connection/last_epoch_weights.pth',
+                 pretrained_model_path='',
                  input_shape=None,
 
                  backbone="resnet50",
-                 use_pretrained_backbone=False,
+                 use_pretrained_backbone=True,
 
-                 init_epoch=599,
-                 freeze_epoch=0,
-                 freeze_batch_size=16,
+                 init_epoch=0,
+                 freeze_epoch=200,
+                 freeze_batch_size=4,
                  epoch=1000,
                  batch_size=32,
                  freeze_backbone=True,
@@ -43,8 +46,8 @@ class Opts(object):
                  momentum=0.9,
                  weight_decay=0,
                  save_period=50,
-                 eval_period=20,
-                 save_dir='logs/dense_connection',
+                 eval_period=1,
+                 save_dir='logs/test',
                  use_eval=True,
                  num_workers=8,
                  train_annotation_path='dataset/SSDD/ImageSets/Exp1/train.txt',

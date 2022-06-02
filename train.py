@@ -8,7 +8,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from nets.centernet_resnet50 import CenterNetResnet50
-from centernet_hourglassnet import CenterNetHourglassNet
+from nets.centernet_hourglassnet import CenterNetHourglassNet
 from nets.centernet_training import get_lr_scheduler, set_optimizer_lr
 from utils.callbacks import EvalCallback, LossHistory
 from utils.dataloader import CenternetDataset, centernet_dataset_collate
@@ -16,7 +16,7 @@ from opts import Opts
 from utils.utils import download_weights, get_classes, show_opts
 from utils.utils_fit import fit_one_epoch
 
-from nets.my_nets.centernet_dense_connection import CenterNetDenseConnection
+from nets.centernet_dense_connection import CenterNetDenseConnection
 
 if __name__ == "__main__":
     # <editor-fold desc="参数设置">

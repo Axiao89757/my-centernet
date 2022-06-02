@@ -72,21 +72,16 @@ class CenterNet(object):
         else:
             return "Unrecognized attribute name '" + n + "'"
 
-    # ---------------------------------------------------#
     #   初始化centernet
-    # ---------------------------------------------------#
     def __init__(self, **kwargs):
         self.__dict__.update(self._defaults)
         for name, value in kwargs.items():
             setattr(self, name, value)
-        # ---------------------------------------------------#
+
         #   计算总的类的数量
-        # ---------------------------------------------------#
         self.class_names, self.num_classes = get_classes(self.classes_path)
 
-        # ---------------------------------------------------#
         #   画框设置不同的颜色
-        # ---------------------------------------------------#
         hsv_tuples = [(x / self.num_classes, 1., 1.) for x in range(self.num_classes)]
         self.colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
         self.colors = list(map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), self.colors))

@@ -1,8 +1,8 @@
 import math
 from torch import nn
-from sub_nets.resnet50_decoder import Resnet50Decoder
-from sub_nets.resnet50_head import Resnet50Head
-from sub_nets.resnet import resnet50
+from .sub_nets.resnet50_decoder import Resnet50Decoder
+from .sub_nets.resnet50_head import Resnet50Head
+from .sub_nets.resnet import resnet50
 
 
 class CenterNetResnet50(nn.Module):

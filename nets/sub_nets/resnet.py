@@ -4,7 +4,7 @@ import math
 
 import torch.nn as nn
 from torch.hub import load_state_dict_from_url
-from sub_nets.bottleneck import Bottleneck
+from ..sub_nets.bottleneck import Bottleneck
 
 model_urls = {
     'resnet18': 'https://s3.amazonaws.com/pytorch/models/resnet18-5c106cde.pth',

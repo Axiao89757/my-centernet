@@ -1,4 +1,5 @@
-from sub_nets.hourglass import *
+from .sub_nets.hourglass import *
+
 
 class CenterNetHourglassNet(nn.Module):
     def __init__(self, heads, pretrained=False, num_stacks=2, n=5, cnv_dim=256, dims=[256, 256, 384, 384, 384, 512],

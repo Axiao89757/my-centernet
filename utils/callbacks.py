@@ -49,6 +49,7 @@ class LossHistory:
 
         self.writer.add_scalar('loss', loss, epoch)
         self.writer.add_scalar('val_loss', val_loss, epoch)
+        self.writer.add_scalars('loss_train_val', {'train_loss': loss, 'val_loss': val_loss}, epoch)
         self.loss_plot()
 
     def loss_plot(self):
@@ -81,8 +82,8 @@ class LossHistory:
         plt.close("all")
 
 
-class EvalCallback():
-    def __init__(self, net, backbone, input_shape, class_names, num_classes, val_lines, log_dir, cuda, \
+class EvalCallback:
+    def __init__(self, net, backbone, input_shape, class_names, num_classes, val_lines, log_dir, cuda,
                  map_out_path=".temp_map_out", max_boxes=100, confidence=0.05, nms=True, nms_iou=0.5,
                  letterbox_image=True, MINOVERLAP=0.5, eval_flag=True, period=1):
         super(EvalCallback, self).__init__()
@@ -113,39 +114,42 @@ class EvalCallback():
                 f.write("\n")
 
     def get_map_txt(self, image_id, image, class_names, map_out_path):
+        """
+        将一个图片的预测结果保存到临时文件 map_out_path/detection-results/image_id.txt
+        保存的结果为：类别 置信度 左 上 右 下
+        :param image_id: 图像id
+        :param image: 图像对象
+        :param class_names: 所有类别名字
+        :param map_out_path: 文件保存路径
+        :return: 无
+        """
         f = open(os.path.join(map_out_path, "detection-results/" + image_id + ".txt"), "w")
-        # ---------------------------------------------------#
+
         #   计算输入图片的高和宽
-        # ---------------------------------------------------#
         image_shape = np.array(np.shape(image)[0:2])
-        # ---------------------------------------------------------#
+
         #   在这里将图像转换成RGB图像，防止灰度图在预测时报错。
         #   代码仅仅支持RGB图像的预测，所有其它类型的图像都会转化成RGB
-        # ---------------------------------------------------------#
         image = cvtColor(image)
-        # ---------------------------------------------------------#
+
         #   给图像增加灰条，实现不失真的resize
         #   也可以直接resize进行识别
-        # ---------------------------------------------------------#
         image_data = resize_image(image, (self.input_shape[1], self.input_shape[0]), self.letterbox_image)
-        # -----------------------------------------------------------#
+
         #   图片预处理，归一化。获得的photo的shape为[1, 512, 512, 3]
-        # -----------------------------------------------------------#
         image_data = np.expand_dims(np.transpose(preprocess_input(np.array(image_data, dtype='float32')), (2, 0, 1)), 0)
 
         with torch.no_grad():
             images = torch.from_numpy(np.asarray(image_data)).type(torch.FloatTensor)
             if self.cuda:
                 images = images.cuda()
-            # ---------------------------------------------------------#
+
             #   将图像输入网络当中进行预测！
-            # ---------------------------------------------------------#
             outputs = self.net(images)
             if self.backbone == 'hourglass':
                 outputs = [outputs[-1]["hm"].sigmoid(), outputs[-1]["wh"], outputs[-1]["reg"]]
-            # -----------------------------------------------------------#
+
             #   利用预测结果进行解码
-            # -----------------------------------------------------------#
             outputs = decode_bbox(outputs[0], outputs[1], outputs[2], self.confidence, self.cuda)
 
             # -------------------------------------------------------#
@@ -158,9 +162,7 @@ class EvalCallback():
             # -------------------------------------------------------#
             results = postprocess(outputs, self.nms, image_shape, self.input_shape, self.letterbox_image, self.nms_iou)
 
-            # --------------------------------------#
             #   如果没有检测到物体，则返回原图
-            # --------------------------------------#
             if results[0] is None:
                 return
 
@@ -168,7 +170,8 @@ class EvalCallback():
             top_conf = results[0][:, 4]
             top_boxes = results[0][:, :4]
 
-        top_100 = np.argsort(top_label)[::-1][:self.max_boxes]
+        # todo 我觉得这里应该按照置信度来sort，直接按照类别来排序是算什么回事，得看看 decode_bbox() 做了什么
+        top_100 = np.argsort(top_label)[::-1][:self.max_boxes]  # 前一百的下标
         top_boxes = top_boxes[top_100]
         top_conf = top_conf[top_100]
         top_label = top_label[top_100]
@@ -202,22 +205,14 @@ class EvalCallback():
             for annotation_line in tqdm(self.val_lines):
                 line = annotation_line.split()
                 image_id = os.path.basename(line[0]).split('.')[0]
-                # ------------------------------#
                 #   读取图像并转换成RGB图像
-                # ------------------------------#
                 image = Image.open(line[0])
-                # ------------------------------#
                 #   获得预测框
-                # ------------------------------#
                 gt_boxes = np.array([np.array(list(map(int, box.split(',')))) for box in line[1:]])
-                # ------------------------------#
                 #   获得预测txt
-                # ------------------------------#
                 self.get_map_txt(image_id, image, self.class_names, self.map_out_path)
 
-                # ------------------------------#
                 #   获得真实框txt
-                # ------------------------------#
                 with open(os.path.join(self.map_out_path, "ground-truth/" + image_id + ".txt"), "w") as new_f:
                     for box in gt_boxes:
                         left, top, right, bottom, obj = box
