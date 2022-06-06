@@ -1,6 +1,6 @@
 import math
 from torch import nn
-from nets.my_sub_nets.resnet import ResNet
+from nets.sub_nets.resnet import ResNet
 from nets.my_sub_nets.resnet50_decoder import Resnet50Decoder
 from nets.my_sub_nets.resnet50_head import Resnet50Head
 from nets.my_sub_nets.bottleneck import Bottleneck

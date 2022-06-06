@@ -14,41 +14,38 @@ from utils.utils import cvtColor, preprocess_input, resize_image
 from utils.utils_bbox import decode_bbox, postprocess
 from utils.utils_map import get_map, get_coco_map
 from summary import net_summary
-
-from nets.centernet_resnet50 import CenterNetResnet50
-from nets.centernet_dense_connection import CenterNetDenseConnection
+from nets.net import Net
 
 
 # <editor-folder desc="参数">
-Model = CenterNetResnet50                                               # 模型
-model_path = 'logs/plain/ep700-loss0.749-val_loss0.994.pth'             # 模型权重 .pth
-# Model = CenterNetDenseConnection                                               # 模型
-# model_path = 'logs/dense_connection/ep700-loss0.668-val_loss1.090.pth'             # 模型权重 .pth
-use_cuda = True                                                         # 使用GPU
-save_dir = 'logs/plain/loss_2022_06_02_07_50_25'                        # 测试结果保存路径
+plan = 11  # 计划
+model_path = 'logs/dense_connection_11/best_epoch_weights.pth'  # 模型权重 .pth
+# model_path = 'logs/dense_connection/ep700-loss0.668-val_loss1.090.pth'
+use_cuda = True
+save_dir = 'logs/test'
 
-test_txt_path = 'dataset/SSDD/ImageSets/Exp1/test.txt'                 # 测试集txt文件路径
-batch_size = 32                                                         #
-num_workers = 8                                                         #
+test_txt_path = 'dataset/SSDD/ImageSets/Exp1/test.txt'  # 测试集txt文件路径
+batch_size = 16
+num_workers = 8
 
-nms = True                                                              #
-nms_iou = 0.5                                                           #
-confidence = 0.05                                                       # 置信度阈值
-max_boxes = 100                                                         # 挑选前100
+nms = True
+nms_iou = 0.5
+confidence = 0.05
+max_boxes = 100
 MINOVERLAP = 0.5
 
-input_shape = [512, 512]                                                # 输入图片尺寸（别改）
-class_names = ['ship']                                                  # 类别名字
+input_shape = [512, 512]  # 输入图片尺寸（别改）
+class_names = ['ship']  # 类别名字
 # </editor-fold>
 
 # <editor-folder desc="模型纵览">
-flops, params = net_summary(Model)
+flops, params = net_summary(plan=plan)
 net_summary_str = 'Total GFLOPS: %s, Total params: %s' % (flops, params)
 print('=======================\n')
 # </editor-fold>
 
 # <editor-folder desc="Net">
-net = Model(num_classes=1, backbone_pretrained=False)  # 创建模型
+net = Net(num_classes=1, backbone_pretrained=False, plan=plan)  # 创建模型
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Loading {} model, and classes.'.format(model_path))
 # 载入权重

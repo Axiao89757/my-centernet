@@ -7,14 +7,13 @@ import torch.backends.cudnn as cudnn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from nets.centernet_resnet50 import CenterNetResnet50
-from nets.centernet_hourglassnet import CenterNetHourglassNet
 from nets.centernet_training import get_lr_scheduler, set_optimizer_lr
 from utils.callbacks import EvalCallback, LossHistory
 from utils.dataloader import CenternetDataset, centernet_dataset_collate
 from opts import Opts
 from utils.utils import download_weights, get_classes, show_opts
 from utils.utils_fit import fit_one_epoch
+from nets.net import Net
 
 from nets.centernet_dense_connection import CenterNetDenseConnection
 
@@ -51,10 +50,9 @@ if __name__ == "__main__":
 
     # <editor-folder desc="创建 Network">
     if opts.backbone == "resnet50":
-        model = CenterNetResnet50(num_classes, backbone_pretrained=opts.use_pretrained_backbone)
-        # model = CenterNetDenseConnection(num_classes, backbone_pretrained=opts.use_pretrained_backbone)
-    else:
-        model = CenterNetHourglassNet({'hm': num_classes, 'wh': 2, 'reg': 2}, pretrained=opts.use_pretrained_backbone)
+        model = Net(plan=opts.plan, backbone_pretrained=opts.use_pretrained_backbone)
+    # else:
+    #     model = CenterNetHourglassNet({'hm': num_classes, 'wh': 2, 'reg': 2}, pretrained=opts.use_pretrained_backbone)
     if opts.pretrained_model_path != '':
         print('Load weights {}.'.format(opts.pretrained_model_path))
         # 根据预训练权重的Key和模型的Key进行加载

@@ -14,6 +14,7 @@ d. 如果想要让模型从0开始训练，则设置pretrained_model_path = ''�
 2. 设置init_epoch=指定epoch-1，设置epoch=你想要的总epoch
 3. 设置log的保存路径，应该与之前的pth文件处于同一个文件夹
 4. ！！！！设置train.py的模型创建，将模型改为你想要的模型！！！
+5. use_pretrained_backbone設置為False
 
 # 3. 冻结
 
@@ -22,20 +23,19 @@ d. 如果想要让模型从0开始训练，则设置pretrained_model_path = ''�
 
 class Opts(object):
     def __init__(self,
+                 plan=11,
                  use_cuda=True,
                  use_fp16=True,
-                 classes_path='model_data/ssdd_classes.txt',
                  pretrained_model_path='',
-                 input_shape=None,
 
                  backbone="resnet50",
-                 use_pretrained_backbone=True,
+                 use_pretrained_backbone=False,
 
                  init_epoch=0,
-                 freeze_epoch=200,
-                 freeze_batch_size=4,
-                 epoch=1000,
-                 batch_size=32,
+                 freeze_epoch=50,
+                 freeze_batch_size=16,
+                 epoch=500,
+                 batch_size=16,
                  freeze_backbone=True,
 
                  init_lr=5e-4,
@@ -45,14 +45,23 @@ class Opts(object):
                  optimizer_type="adam",
                  momentum=0.9,
                  weight_decay=0,
-                 save_period=50,
-                 eval_period=1,
-                 save_dir='logs/test',
+                 save_period=200,
+                 eval_period=50,
+                 save_dir='logs/dense_connection_11',
                  use_eval=True,
-                 num_workers=8,
+                 num_workers=16,
+
+                 input_shape=None,
+                 classes_path='model_data/ssdd_classes.txt',
                  train_annotation_path='dataset/SSDD/ImageSets/Exp1/train.txt',
                  val_annotation_path='dataset/SSDD/ImageSets/Exp1/val.txt'):
         """
+        :param plan: 网络计划
+        0：baseline
+        1：密集连接
+            11：同维度跳接
+            12：不同维度跳接，使用反卷积上采样
+            13：不同维度跳接，使用插值上采样
         :param use_cuda: 使用Cuda，没有GPU可以设置成False
         :param use_fp16: 是否使用混合精度训练，可减少约一半的显存、需要pytorch1.7.1以上
         :param classes_path: 自己训练的数据集的类别描述文件.txt路径
@@ -83,6 +92,7 @@ class Opts(object):
         :param train_annotation_path: 训练图片和标签.txt文件路径
         :param val_annotation_path: 验证图片和标签.txt文件路径
         """
+        self.plan = plan
         self.use_cuda = use_cuda
         self.use_fp16 = use_fp16
         self.classes_path = classes_path
